@@ -1,0 +1,16 @@
+/* 📢 告訴網頁最源頭的容器：給我無限伸縮的 100% 空間 */
+html, body, #root, .app-container {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 📢 告訴 Leaflet 地圖：吐出你所有的怨氣，把剩餘空間全部吃滿 */
+.leaflet-container {
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+}

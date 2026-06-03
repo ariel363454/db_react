@@ -220,7 +220,7 @@ function App() {
           axios.get('https://notification-naturally-apnic-recall.trycloudflare.com/api/parking_bounds/', { params })
             .then((res) => {
               if (res.data) {
-                const actulData = res.data.data ?res.data.data : res.data;
+                const actualData = res.data.data ? res.data.data : res.data;
                 console.log("✅ 成功獲取後端異質資料筆數:", res.data.length);
                 setParkingItems(res.data);
                 const backendTime = res.data[0].update_time || res.data[0]['update-time'];

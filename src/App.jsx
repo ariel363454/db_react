@@ -165,7 +165,11 @@ function App() {
               // 3. 帶著新中心點，去敲你們昨天修好的 Django 後端 API
               const apiURL = `https://notification-naturally-apnic-recall.trycloudflare.com/api/parking_bounds/?min_lat=${newLat-0.01}&max_lat=${newLat+0.01}&min_lng=${newLng-0.01}&max_lng=${newLng+0.01}&user_lat=${newLat}&user_lng=${newLng}`;
               
-              const backendRes = await fetch(apiURL);
+              const backendRes = await await axios.get(apiURL);
+              if (backendRes.data){
+                const actualSearchData = backendRes.data.data ? backendRes.data.data : backendRes.data;
+                setPArkingItems(actualSearchData);
+              }
               const backendData = await backendRes.json();
               
               // 4. 更新地圖上的停車格
@@ -216,6 +220,7 @@ function App() {
           axios.get('https://notification-naturally-apnic-recall.trycloudflare.com/api/parking_bounds/', { params })
             .then((res) => {
               if (res.data) {
+                const actulData = res.data.data ?res.data.data : res.data;
                 console.log("✅ 成功獲取後端異質資料筆數:", res.data.length);
                 setParkingItems(res.data);
                 const backendTime = res.data[0].update_time || res.data[0]['update-time'];

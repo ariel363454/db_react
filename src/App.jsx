@@ -163,7 +163,7 @@ function App() {
               }
 
               // 3. 帶著新中心點，去敲你們昨天修好的 Django 後端 API
-              const apiURL = `https://delivers-openings-estimate-colored.trycloudflare.com/api/parking_bounds/?min_lat=${newLat-0.01}&max_lat=${newLat+0.01}&min_lng=${newLng-0.01}&max_lng=${newLng+0.01}&user_lat=${newLat}&user_lng=${newLng}`;
+              const apiURL = `https://notification-naturally-apnic-recall.trycloudflare.com/api/parking_bounds/?min_lat=${newLat-0.01}&max_lat=${newLat+0.01}&min_lng=${newLng-0.01}&max_lng=${newLng+0.01}&user_lat=${newLat}&user_lng=${newLng}`;
               
               const backendRes = await fetch(apiURL);
               const backendData = await backendRes.json();
@@ -213,7 +213,7 @@ function App() {
 
           console.log("📡 [緩衝盾牌生效] 視域完全靜止，發送單一請求...", params);
 
-          axios.get('https://delivers-openings-estimate-colored.trycloudflare.com/api/parking_bounds/', { params })
+          axios.get('https://notification-naturally-apnic-recall.trycloudflare.com/api/parking_bounds/', { params })
             .then((res) => {
               if (res.data) {
                 console.log("✅ 成功獲取後端異質資料筆數:", res.data.length);

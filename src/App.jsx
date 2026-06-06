@@ -509,17 +509,15 @@ function App() {
                 }}
                 style={{
                   position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  opacity: 0,        
-                  zIndex: -1,       
-                  pointerEvents: 'none', 
-                  margin: 0,
-                  padding: 0,
-                  border: 'none',
-                  boxSizing: 'border-box'
+                  width: '1px',
+                  height: '1px',
+                  padding: '0',
+                  margin: '-1px',
+                  overflow: 'hidden',
+                  clip: 'rect(0, 0, 0, 0)',
+                  border: '0',
+                  backgroundColor: 'transparent',
+                  pointerEvents: 'none',
                 }}
               />
 

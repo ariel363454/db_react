@@ -357,7 +357,7 @@ function App() {
             placeholder="輸入路名、地標 (如: 台北101)"
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
-            className="text-xs bg-transparent outline-none px-3 py-1.5 w-[160px] sm:w-[220px] text-gray-800 placeholder:text-[#9ca3af]"
+            className="text-xs bg-transparent outline-none px-2 flex-1 text-gray-800 placeholder:text-[#9ca3af]"
             onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(selectedDistrict, searchKeyword); }}
             style={{
               color: '#1F2937',
@@ -365,7 +365,6 @@ function App() {
               border: '0px',
               borderRight: '1px solid #E5E7EB',
               fontWeight: '400',
-              width: '380px',
               marginLeft: '12px',
               paddingRight: '110px',
             }}
@@ -374,13 +373,13 @@ function App() {
           <div 
             style={{
               position: 'absolute',
-              right: '150px',       // 🚀 剛好卡在放大鏡按鈕（最右邊）的左側
-              bottom: '5px',       // 🚀 精確鎖死在框體內部的右下角
-              fontSize: '11px',     // 精緻的微型小字
+              right: '70px',       // 🚀 剛好卡在放大鏡按鈕的左邊
+              bottom: '4px',       // 下移一點點，靠緊底邊
+              fontSize: '10px',    // 再縮小一個級距，變成精緻的點綴字
               fontWeight: '400',
               color: '#9ca3af',
-              opacity: '0.8',
-              userSelect: 'none',  // 防止使用者選取文字時亮藍色，干擾視覺
+              opacity: '0.75',
+              userSelect: 'none',  
               pointerEvents: 'none',
             }}
           >

@@ -759,8 +759,8 @@ const handleSearchNearby = (mapInstance) => {
         <div 
           className="absolute bottom-24 right-5 z-[1000] flex flex-col gap-2.5 p-3 rounded-xl border-slate-200/80 tracking-wide animate-fade-in"
           style={{
-            width: '150px',
-            height: '120px',
+            width: window.innerWidth > 640 ? '150px' : '100px',
+            height: window.innerWidth > 640 ? '120px': '80px',
             backgroundColor: 'rgba(255,255,255,0.82)',
             boxShadow: '0 4px 10px rgba(15,23,42,0.06)',
             border: '1px solid #FFFFFF30',

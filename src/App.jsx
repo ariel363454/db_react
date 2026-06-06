@@ -431,7 +431,9 @@ function App() {
         </div>
        {/* 🚀 雙子星貨櫃：強行將「時間篩選」與「範圍切換」橫向肩並肩排開 */}
         <div
-          display: 'flex',
+          className="space-time-twin-controls w-full flex flex-row justify-center"
+          style={{
+            display: 'flex',
             flexDirection: 'row',      // 🚀 核心關鍵：命令子元素由上而下改成「由左至右」橫向排列！
             alignItems: 'flex-start',  // 讓兩個方塊的頂部對齊
             flexWrap: 'wrap',

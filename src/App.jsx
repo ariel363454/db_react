@@ -236,7 +236,7 @@ function App() {
     return null;
   };
 
-  const handleSearchNearby = (mapInstance) => {
+const handleSearchNearby = (mapInstance) => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -249,7 +249,9 @@ function App() {
           setIsRadiusMode(true);
           
           if (mapInstance) {
-            mapInstance.flyTo([lat, lng], 17);
+            setTimeout(() => {
+              mapInstance.flyTo([lat, lng], 16);
+            }, 150);
           }
         },
         (err) => {
@@ -261,7 +263,9 @@ function App() {
           setIsRadiusMode(true);
           
           if (mapInstance) {
-            mapInstance.flyTo([lat, lng], 1);
+            setTimeout(() => {
+              mapInstance.flyTo([lat, lng], 16);
+            }, 150);
           }
         }
       );

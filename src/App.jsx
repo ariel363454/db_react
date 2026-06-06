@@ -661,7 +661,7 @@ const handleSearchNearby = (mapInstance) => {
         className="absolute bottom-24 left-5 z-[1000] flex flex-col gap-0 shadow-md rounded-xl overflow-hidden"
         style={{
           position: 'absolute',
-          bottom: '20px',
+          bottom: '25px',
           left: '20px',
         }}
       >
@@ -766,7 +766,7 @@ const handleSearchNearby = (mapInstance) => {
             border: '1px solid #FFFFFF30',
             borderRadius: '14px',
             userSelect: 'none',
-            bottom: '20px',
+            bottom: '25px',
             right: '20px',
             padding: '10px 12spx',
           }}

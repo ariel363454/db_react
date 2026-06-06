@@ -287,7 +287,7 @@ function App() {
   };
 
   return (
-    <div className="app-container relative w-full h-[100vh] flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden', touchAction: 'none' }}>      <div 
+      <div className="app-container relative w-full h-[100vh] flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden', touchAction: 'none' }}>      <div 
         className="absolute left-1/2 -translate-x-1/2 z-[1000] flex flex-col items-center w-auto max-w-[95vw]"
         style={{ 
           top: '15px',
@@ -448,7 +448,7 @@ function App() {
               display: 'flex',
               flexDirection: 'column',
               gap: '12px',
-              width: '260px',
+              width: window.innerWidth > 640 ?'220px' : '100%',
               height: '40px',
               boxSizing: 'border-box',
             }}
@@ -567,7 +567,7 @@ function App() {
               border: '1px solid rgba(255,255,255,0.5)',
               display: 'flex',
               flexDirection: 'column',
-              width: '220px',       // 規格：260px
+              width: window.innerWidth > 640 ?'220px' : '100%',
               height: '40px',       // 讓高度自動適應
               boxSizing: 'border-box',
             }}
@@ -653,8 +653,14 @@ function App() {
         </div>
       </div>
       {/* 🚀 核心手術：利用 Tailwind 斷點，讓按鈕在手機和電腦自動切換左右邊！ */}
-      <div className="absolute bottom-24 left-4 sm:bottom-10 sm:left-auto sm:right-5 z-[1000] flex flex-col gap-0 shadow-md rounded-xl overflow-hidden">            
-        
+      <div
+        className="absolute bottom-24 left-5 z-[1000] flex flex-col gap-0 shadow-md rounded-xl overflow-hidden"
+        style={{
+          position: 'absolute',
+          bottom: '20px',
+          left: '20px',
+        }}
+      >
         {/* ➕ 放大按鈕 */}
         <button
           onClick={() => map.zoomIn()} 
@@ -1393,7 +1399,7 @@ const createOptimizedParkingIcon = (avaCar, currentRateItem) => {
             line-height: 1.2 !important;
             margin-top: 2px;
           ">
-           ${rateText}
+           ${spaceText}
           </div>
           <div style="
             width: 70%;
@@ -1408,7 +1414,7 @@ const createOptimizedParkingIcon = (avaCar, currentRateItem) => {
             line-height: 1.2 !important;
             margin-bottom: 2px;
           ">
-            ${spaceText}
+            ${rateText}
           </div>
       </div>
     `,

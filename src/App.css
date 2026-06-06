@@ -14,3 +14,17 @@ html, body, #root, .app-container {
   width: 100%;
   height: 100%;
 }
+
+/* 🖥️ 電腦版預設：縮放按鈕貼緊左上角 */
+.leaflet-top.leaflet-left {
+    top: 12px !important;
+    left: 12px !important;
+}
+
+/* 📱 手機版防禦：當螢幕寬度小於 640px 時，自動往下沉 160px，躲開搜尋框 */
+@media (max-width: 640px) {
+    .leaflet-top.leaflet-left {
+        top: 160px !important;
+        left: 12px !important;
+    }
+}

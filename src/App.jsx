@@ -776,36 +776,36 @@ const handleSearchNearby = (mapInstance) => {
           <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
             <div className="flex items-center justify-center w-6 h-4">
               {/* 🟢 絕對不跑版正圓點：代表地圖上的點狀水滴 */}
-              <div style={{ width: '20px', height: '20px', backgroundColor: '#3730A3', borderRadius: '50% 50% 50% 15%', transform: 'rotate(-45deg)', marginTop: '8px', marginLeft: '14px', marginBottom: '10px' }} />
+              <div style={{ width: window.innerWidth > 640 ? '20px' : '12px', height: window.innerWidth > 640 ? '20px' : '12px', backgroundColor: '#3730A3', borderRadius: '50% 50% 50% 20%', transform: 'rotate(-45deg)', marginTop: window.innerWidth > 640 ? '8px' : '2px', marginLeft: window.innerWidth > 640 ? '14px': '10px', marginBottom: window.innerWidth > 640 ? '10px': '6px' }} />
             </div>
-            <span style={{ fontSize: '11px', marginLeft: '14.5px', marginBottom: '10px' , marginTop: '12px'}}>停車場</span>
+            <span style={{ fontSize: window.innerWidth > 640 ? '11px': '9px', marginLeft: window.innerWidth > 640 ? '14.5px': '9.5px', marginBottom: window.innerWidth > 640 ? '10px': '6px' , marginTop: window.innerWidth > 640 ? '12px' : '5.5px' }}>停車場</span>
           </div>
 
           {/* ❸ 黃線 */}
           <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
             <div className="flex items-center justify-center w-6 h-4">
               {/* 🟡 鮮明交通黃線 */}
-              <div style={{ width: '18px', height: '4px', backgroundColor: '#C9A227', borderRadius: '2px', marginLeft: '15px', marginBottom: '10px' }} />
+              <div style={{ width: window.innerWidth > 640 ? '18px' : '12px', height: window.innerWidth > 640 ? '4px' : '3px', backgroundColor: '#C9A227', borderRadius: '2px', marginLeft: window.innerWidth > 640 ? '15px': '10px', marginBottom: window.innerWidth > 640 ? '10px' : '6px' }} />
             </div>
-            <span style={{ fontSize: '11px', marginLeft: '12px', marginBottom: '10px' }}>黃線 (時段臨停)</span>
+            <span style={{ fontSize: window.innerWidth > 640 ? '11px': '9px', marginLeft: window.innerWidth > 640 ? '12px': '10px', marginBottom: window.innerWidth > 640 ? '10px': '6px' }}>黃線 (時段臨停)</span>
           </div>
 
           {/* ❹ 路邊可停 */}
           <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
             <div className="flex items-center justify-center w-6 h-4">
               {/* 🟢 自由瀏覽翠綠線 */}
-              <div style={{ width: '18px', height: '4px', backgroundColor: '#6B9E78', borderRadius: '2px', marginLeft: '15px', marginBottom: '10px' }} />
+              <div style={{ width: window.innerWidth > 640 ? '18px' : '12px', height: window.innerWidth > 640 ? '4px' : '3px', backgroundColor: '#6B9E78', borderRadius: '2px', marginLeft: window.innerWidth > 640 ? '15px': '10px', marginBottom: window.innerWidth > 640 ? '10px' : '6px' }} />
             </div>
-            <span style={{ fontSize: '11px', marginLeft: '12px', marginBottom: '10px' }}>路邊可停</span>
+            <span style={{ fontSize: window.innerWidth > 640 ? '11px': '9px', marginLeft: window.innerWidth > 640 ? '12px': '10px', marginBottom: window.innerWidth > 640 ? '10px': '6px' }}>路邊可停</span>
           </div>
 
           {/* ❺ 已滿 */}
           <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
             <div className="flex items-center justify-center w-6 h-4">
               {/* ⚪ 飽和莫蘭迪灰線 */}
-              <div style={{ width: '18px', height: '4px', backgroundColor: '#C96B5C', borderRadius: '2px', marginLeft: '15px', marginBottom: '10px' }} />
+              <div style={{ width: window.innerWidth > 640 ? '18px' : '12px', height: window.innerWidth > 640 ? '4px' : '3px', backgroundColor: '#C96B5C', borderRadius: '2px', marginLeft: window.innerWidth > 640 ? '15px': '10px', marginBottom: window.innerWidth > 640 ? '10px' : '6px' }} />
             </div>
-            <span style={{ fontSize: '11px', marginLeft: '12px', marginBottom: '10px' }}>路邊已滿</span>
+            <span style={{ fontSize: window.innerWidth > 640 ? '11px': '9px', marginLeft: window.innerWidth > 640 ? '12px': '10px', marginBottom: window.innerWidth > 640 ? '10px': '6px' }}>路邊已滿</span>
           </div>
         </div>
 

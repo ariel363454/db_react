@@ -653,7 +653,7 @@ function App() {
         </div>
       </div>
       {/* 🚀 核心手術：利用 Tailwind 斷點，讓按鈕在手機和電腦自動切換左右邊！ */}
-      <div className="absolute bottom-24 left-4 sm:bottom-10 sm:left-auto sm:right-5 z-[1000] flex flex-col gap-0 shadow-md rounded-xl overflow-hidden">
+      <div className="absolute bottom-24 left-4 sm:bottom-10 sm:left-auto sm:right-5 z-[1000] flex flex-col gap-0 shadow-md rounded-xl overflow-hidden">            
         
         {/* ➕ 放大按鈕 */}
         <button

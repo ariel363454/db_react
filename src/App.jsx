@@ -298,7 +298,7 @@ function App() {
   return (
     <div className="app-container relative w-full h-[100vh] flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden', touchAction: 'none' }}>      
       <div 
-        className="absolute left-1/2 -translate-x-1/2 z-[1000] flex flex-col items-center w-full px-3"
+        className="absolute left-1/2 -translate-x-1/2 z-[1000] flex flex-col items-center w-auto max-w-[95vw]"
         style={{ 
           top: '15px',
           rowGap: '12px',

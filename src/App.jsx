@@ -159,7 +159,7 @@ function App() {
               }
 
               // 3. 帶著新中心點，去敲你們昨天修好的 Django 後端 API
-              const apiURL = `https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net//api/parking_bounds/?min_lat=${newLat-0.01}&max_lat=${newLat+0.01}&min_lng=${newLng-0.01}&max_lng=${newLng+0.01}&user_lat=${newLat}&user_lng=${newLng}`;
+              const apiURL = `https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/?min_lat=${newLat-0.01}&max_lat=${newLat+0.01}&min_lng=${newLng-0.01}&max_lng=${newLng+0.01}&user_lat=${newLat}&user_lng=${newLng}`;
               
               const backendRes = await fetch(apiURL);
               const backendData = await backendRes.json();
@@ -188,7 +188,7 @@ function App() {
         if (!mapInstance) return;
         
         try {
-          if (!isRadiusMode && mapInstance.getZoom() < 17) {
+          if (!isRadiusMode && mapInstance.getZoom() < 16) {
             console.log("🛑 [效能防禦] 級距過小，直接清空陣列，拒絕請求後端，保護記憶體。");
             setParkingItems([]); // 一秒清空，DOM 節點瞬間蒸發
             return; // 直接攔截，不發送 Axios 請求！
@@ -209,7 +209,7 @@ function App() {
 
           console.log("📡 [緩衝盾牌生效] 視域完全靜止，發送單一請求...", params);
 
-          axios.get('https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net//api/parking_bounds/', { params })
+          axios.get('https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/', { params })
             .then((res) => {
               if (res.data) {
                 console.log("✅ 成功獲取後端異質資料筆數:", res.data.length);
@@ -274,7 +274,8 @@ const handleSearchNearby = (mapInstance) => {
       const lng = 121.5170;
       setUserLocation({ lat, lng });
       setIsRadiusMode(true);
-      if (mapInstance) mapInstance.flyTo([lat, lng], 17);
+      if (mapInstance)
+        mapInstance.flyTo([lat, lng], 17);
     }
   };
 
@@ -283,11 +284,6 @@ const handleSearchNearby = (mapInstance) => {
     setUserLocation(null);
     setSearchKeyword('');
     console.log("🌐 [自由瀏覽模式] 已解除 500m 半徑精篩，恢復全圖視野");
-
-    // 🚀 讓地圖優雅地飛回大台北中心點，並把比例尺縮小到 14，展現全圖氣勢
-    if (mapInstance) {
-      mapInstance.flyTo([25.055, 121.523], 16);
-    }
   };
 
   return (
@@ -320,13 +316,11 @@ const handleSearchNearby = (mapInstance) => {
           <select
             value={selectedDistrict}
             onChange={(e) => setSelectedDistrict(e.target.value)}
-            className="text-xs font-bold text-gray-700 bg-transparent outline-none cursor-pointer px-3 py-1.5"
+            className="text-base sm:text-xs font-bold text-gray-700 bg-transparent outline-none cursor-pointer px-3 py-1.5"
             style={{ 
               border: '0px solid rgba(0,0,0,0.08)',
               borderRight: '1px solid #E5E7EB',
               color: '#4b5563',
-              fontSize: '14px',
-              fontSize: '14px',
               backgroundColor: 'transparent',
               padding: '6px 28px 6px 12px',
               outline: 'none',
@@ -352,7 +346,7 @@ const handleSearchNearby = (mapInstance) => {
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
             /* 🚀 用 w-full 和 min-w-0，配合 flex-1，讓它在手機上自動縮小、在電腦上自動拉長，放大鏡絕對不會被擠飛！ */
-            className="text-xs sm:text-sm bg-transparent outline-none px-2 flex-1 w-full min-w-0 text-gray-800 placeholder:text-[#9ca3af]"
+            className="text-base sm:text-sm bg-transparent outline-none px-2 flex-1 w-full min-w-0 text-gray-800 placeholder:text-[#9ca3af]"
             onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(selectedDistrict, searchKeyword); }}
             style={{
               color: '#1F2937',

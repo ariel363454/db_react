@@ -311,7 +311,7 @@ const handleSearchNearby = (mapInstance) => {
             boxShadow: '0 4px 12px rgba(15,23,42,0.05)',
             padding: '0px 16px',
             width: '100%',
-            minWidth: window.innerWidth > 640 ? '680px' : '450px',
+            minWidth: window.innerWidth > 640 ? '680px' : 'auto',
             height: '48px',
             marginBottom: '10px'
           }}

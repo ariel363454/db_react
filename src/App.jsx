@@ -87,6 +87,7 @@ function App() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [lastUpdateTime, setLastUpdateTime] = useState('');
   const [timeMode, setTimeMode] = useState('now');
+  const [isLegendOpen, setIsLegendOpen] = useState(false);
   const [targetTime, setTargetTime] = useState(() => {
     const now = new Date();
     const pad = (n) => String(n).padStart(2, '0');
@@ -750,56 +751,97 @@ const handleSearchNearby = (mapInstance) => {
             />
           </React.Fragment>
         )}
+        {/* 🚀 智慧伸縮動態圖例膠囊完全體（徹底拔除 window.innerWidth 危害） */}
         <div 
-          className="absolute bottom-24 right-5 z-[1000] flex flex-col gap-2.5 p-3 rounded-xl border-slate-200/80 tracking-wide animate-fade-in"
+          className="absolute z-[1000] flex flex-col items-end"
           style={{
-            width: window.innerWidth > 640 ? '150px' : '100px',
-            height: window.innerWidth > 640 ? '120px': '80px',
-            backgroundColor: 'rgba(255,255,255,0.82)',
-            boxShadow: '0 4px 10px rgba(15,23,42,0.06)',
-            border: '1px solid #FFFFFF30',
-            borderRadius: '14px',
-            userSelect: 'none',
             bottom: '25px',
             right: '20px',
-            padding: '10px 12spx',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
           }}
         >
+          {/* ❶ 負責觸發收合的「極簡浮動圓鈕」 */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsLegendOpen(!isLegendOpen);
+            }}
+            className="flex items-center justify-center shadow-lg cursor-pointer transition-all active:scale-90"
+            style={{
+              width: '36px',
+              height: '36px',
+              backgroundColor: isLegendOpen ? '#4F46E5' : 'rgba(255,255,255,0.9)', 
+              color: isLegendOpen ? '#FFFFFF' : '#4B5563',
+              borderRadius: '50%',
+              border: '1px solid rgba(255,255,255,0.6)',
+              backdropFilter: 'blur(8px)',
+              marginBottom: '6px', 
+            }}
+            title={isLegendOpen ? "關閉圖例" : "展開圖例"}
+          >
+            {isLegendOpen ? (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            )}
+          </button>
 
-          {/* ❶ 停車場 */}
-          <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
-            <div className="flex items-center justify-center w-6 h-4">
-              {/* 🟢 絕對不跑版正圓點：代表地圖上的點狀水滴 */}
-              <div style={{ width: window.innerWidth > 640 ? '20px' : '12px', height: window.innerWidth > 640 ? '20px' : '12px', backgroundColor: '#3730A3', borderRadius: '50% 50% 50% 20%', transform: 'rotate(-45deg)', marginTop: window.innerWidth > 640 ? '8px' : '2px', marginLeft: window.innerWidth > 640 ? '14px': '10px', marginBottom: window.innerWidth > 640 ? '10px': '6px' }} />
+          {/* ❷ 圖例內容本體（鎖定尺寸，不再用 JS 算寬高，杜絕 Safari 縮小 Bug） */}
+          <div 
+            className="flex flex-col gap-2.5 rounded-xl tracking-wide border-slate-200/80 animate-fade-in"
+            style={{
+              width: '120px',
+              // 🚀 當展開時是完美的 120px，收合時是 0px 藏起來
+              height: isLegendOpen ? '100px' : '0px',
+              opacity: isLegendOpen ? 1 : 0,
+              pointerEvents: isLegendOpen ? 'auto' : 'none', 
+              transform: isLegendOpen ? 'scale(1)' : 'scale(0.85)', 
+              transformOrigin: 'bottom right',
+              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+              backgroundColor: 'rgba(255,255,255,0.82)',
+              boxShadow: '0 4px 10px rgba(15,23,42,0.06)',
+              border: '1px solid #FFFFFF30',
+              borderRadius: '14px',
+              userSelect: 'none',
+              padding: isLegendOpen ? '10px 12px' : '0px 12px',
+              overflow: 'hidden' 
+            }}
+          >
+            {/* 停車場 */}
+            <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
+              <div className="flex items-center justify-center w-6 h-4">
+                <div style={{ width: '20px', height: '20px', backgroundColor: '#3730A3', borderRadius: '50% 50% 50% 20%', transform: 'rotate(-45deg)', marginTop: '1px', marginLeft: '10px', marginBottom: '10px' }} />
+              </div>
+              <span style={{ fontSize: '11px', marginLeft: '12.5px', marginBottom: '8px' , marginTop: '4px'}}>停車場</span>
             </div>
-            <span style={{ fontSize: window.innerWidth > 640 ? '11px': '9px', marginLeft: window.innerWidth > 640 ? '14.5px': '9.5px', marginBottom: window.innerWidth > 640 ? '10px': '6px' , marginTop: window.innerWidth > 640 ? '12px' : '5.5px' }}>停車場</span>
-          </div>
 
-          {/* ❸ 黃線 */}
-          <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
-            <div className="flex items-center justify-center w-6 h-4">
-              {/* 🟡 鮮明交通黃線 */}
-              <div style={{ width: window.innerWidth > 640 ? '18px' : '12px', height: window.innerWidth > 640 ? '4px' : '3px', backgroundColor: '#C9A227', borderRadius: '2px', marginLeft: window.innerWidth > 640 ? '15px': '10px', marginBottom: window.innerWidth > 640 ? '10px' : '6px' }} />
+            {/* 黃線 */}
+            <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
+              <div className="flex items-center justify-center w-6 h-4">
+                <div style={{ width: '18px', height: '4px', backgroundColor: '#C9A227', borderRadius: '2px', marginLeft: '11px', marginBottom: '10px' }} />
+              </div>
+              <span style={{ fontSize: '11px', marginLeft: '12px', marginBottom: '10px' }}>黃線 (時段臨停)</span>
             </div>
-            <span style={{ fontSize: window.innerWidth > 640 ? '11px': '9px', marginLeft: window.innerWidth > 640 ? '12px': '10px', marginBottom: window.innerWidth > 640 ? '10px': '6px' }}>黃線 (時段臨停)</span>
-          </div>
 
-          {/* ❹ 路邊可停 */}
-          <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
-            <div className="flex items-center justify-center w-6 h-4">
-              {/* 🟢 自由瀏覽翠綠線 */}
-              <div style={{ width: window.innerWidth > 640 ? '18px' : '12px', height: window.innerWidth > 640 ? '4px' : '3px', backgroundColor: '#6B9E78', borderRadius: '2px', marginLeft: window.innerWidth > 640 ? '15px': '10px', marginBottom: window.innerWidth > 640 ? '10px' : '6px' }} />
+            {/* 路邊可停 */}
+            <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
+              <div className="flex items-center justify-center w-6 h-4">
+                <div style={{ width: '18px', height: '4px', backgroundColor: '#6B9E78', borderRadius: '2px', marginLeft: '11px', marginBottom: '10px' }} />
+              </div>
+              <span style={{ fontSize: '11px', marginLeft: '12px', marginBottom: '10px' }}>路邊可停</span>
             </div>
-            <span style={{ fontSize: window.innerWidth > 640 ? '11px': '9px', marginLeft: window.innerWidth > 640 ? '12px': '10px', marginBottom: window.innerWidth > 640 ? '10px': '6px' }}>路邊可停</span>
-          </div>
 
-          {/* ❺ 已滿 */}
-          <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
-            <div className="flex items-center justify-center w-6 h-4">
-              {/* ⚪ 飽和莫蘭迪灰線 */}
-              <div style={{ width: window.innerWidth > 640 ? '18px' : '12px', height: window.innerWidth > 640 ? '4px' : '3px', backgroundColor: '#C96B5C', borderRadius: '2px', marginLeft: window.innerWidth > 640 ? '15px': '10px', marginBottom: window.innerWidth > 640 ? '10px' : '6px' }} />
+            {/* 已滿 */}
+            <div className="flex items-center gap-8 text-[14px] font-bold" style={{ color: '#6B7280' }}>
+              <div className="flex items-center justify-center w-6 h-4">
+                <div style={{ width: '18px', height: '4px', backgroundColor: '#C96B5C', borderRadius: '2px', marginLeft: '11px', marginBottom: '10px' }} />
+              </div>
+              <span style={{ fontSize: '11px', marginLeft: '12px', marginBottom: '10px' }}>路邊已滿</span>
             </div>
-            <span style={{ fontSize: window.innerWidth > 640 ? '11px': '9px', marginLeft: window.innerWidth > 640 ? '12px': '10px', marginBottom: window.innerWidth > 640 ? '10px': '6px' }}>路邊已滿</span>
           </div>
         </div>
 
@@ -829,7 +871,7 @@ const handleSearchNearby = (mapInstance) => {
                 >
                   <div className="font-sans p-1" style={{ minWidth: '190px' }}>
                     {/* 🅿️ 1. 停車場名稱標題（與大彈窗同款線性方框） */}
-                    <h3 className="text-sm font-bold flex items-center gap-1.5 m-0 mb-2" style={{ color: '#090d16', lineHeight: '1.4' }}>
+                    <h3 className="text-sm font-bold flex items-center gap-1.5 m-0 mb-0" style={{ color: '#090d16', lineHeight: '1.4' }}>
                       <svg className="w-[1em] h-[1em] flex-shrink-0 inline-block align-text-bottom" style={{ color: '#4F46E5', marginRight: '2px' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="2" y="2" width="20" height="20" rx="4" />
                         <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
@@ -843,8 +885,42 @@ const handleSearchNearby = (mapInstance) => {
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                         <circle cx="12" cy="10" r="3" />
                       </svg>
-                      <span className="block truncat" title={item.addr}>{item.addr || '暫無地址資料'}</span>
+                      <span className="block truncate" title={item.addr}>{item.addr || '暫無地址資料'}</span>
                     </p>
+                    {/* 🚀 2.5 核心位置增補：Google 地圖導航按鈕（緊貼在地址下方） */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        
+                        // ❶ 智慧抓取中文名字（如果沒有場名，就抓地址或路段名）
+                        const searchName = item.lot_name || item.road_name || item.addr;
+                        
+                        if (searchName) {
+                          // 🚀 Google 官方推薦的「關鍵字搜尋導航公式」
+                          // 它會自動去對齊 Google Maps 上的實體商標與車道入口！
+                          const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchName)}`;
+                          
+                          window.open(googleMapsUrl, '_blank');
+                        } else {
+                          alert("抱歉，此位置缺少關鍵字資料，無法導航！");
+                        }
+                      }}
+                      className="w-full font-bold text-[11px] tracking-wide transition-all flex items-center gap-0 mb-2.5 active:scale-95"
+                      style={{ 
+                        backgroundColor: '#ffffff',
+                        color: '#4F46E5', 
+                        border: 'none', 
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        boxShadow: null
+                      }}
+                    >
+                      {/* 🗺️ 線性指南針導航小 Icon */}
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="3 11 22 2 13 21 11 13 3 11" />
+                      </svg>
+                      使用 Google 地圖導航
+                    </button>
 
                     {/* ⏱️ 3. 營運時間（極簡線性時鐘） */}
                     <p className="text-xs m-0 mb-2.5 flex items-center gap-1.5" style={{ color: '#6b7280' }}>

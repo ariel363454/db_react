@@ -296,10 +296,9 @@ function App() {
   };
 
   return (
-    <div className="app-container relative w-full h-full flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
-      
+    <div className="app-container relative w-full h-[100vh] flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden', touchAction: 'none' }}>      
       <div 
-        className="absolute left-1/2 -translate-x-1/2 z-[1000] flex flex-col items-center w-auto max-w-[95vw]"
+        className="absolute left-1/2 -translate-x-1/2 z-[1000] flex flex-col items-center w-full px-3"
         style={{ 
           top: '15px',
           rowGap: '12px',
@@ -308,7 +307,7 @@ function App() {
       >
         {/* 🔍 高質感黑白膠囊搜尋框體 */}
         <div 
-          className="flex flex-row items-center overflow-hidden"
+          className="flex flex-row items-center"
           style={{
             position: 'relative',
             backgroundColor: 'rgba(255,255,255,0.9)', 
@@ -317,7 +316,8 @@ function App() {
             borderRadius: '24px',
             boxShadow: '0 4px 12px rgba(15,23,42,0.05)',
             padding: '0px 16px',
-            width: '720px',
+            width: '100%',
+            minwidth: '680px',
             height: '48px',
             marginBottom: '10px'
           }}
@@ -431,13 +431,14 @@ function App() {
         </div>
        {/* 🚀 雙子星貨櫃：強行將「時間篩選」與「範圍切換」橫向肩並肩排開 */}
         <div
-          className="space-time-twin-controls"
-          style={{
-            display: 'flex',
+          display: 'flex',
             flexDirection: 'row',      // 🚀 核心關鍵：命令子元素由上而下改成「由左至右」橫向排列！
             alignItems: 'flex-start',  // 讓兩個方塊的頂部對齊
+            flexWrap: 'wrap',
+            justifyContent: 'center',
             gap: '12px',               // 🎯 精確控制：左邊時間方塊與右邊範圍滑塊之間的左右間距
-            width: 'auto',             // 寬度交給裡面的兩個 260px 自動撐開
+            width: '100%',
+            maxWidth: '680px',             // 寬度交給裡面的兩個 260px 自動撐開
             boxSizing: 'border-box'
           }}
         >
@@ -1367,8 +1368,8 @@ const createOptimizedParkingIcon = (avaCar, currentRateItem) => {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 52px;
-        height: 52px;
+        width: 44px;
+        height: 44px;
         background-color: ${bgColor} !important;
         border: 1px solid #FFFFFF30 !important; 
         border-radius: 50% 50% 50% 10%; transform: rotate(-45deg);

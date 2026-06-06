@@ -12,9 +12,7 @@ const parseWKTToLatLng = (wktStr) => {
   const text = wktStr.toUpperCase().trim();
   const numberPattern = /-?\d+\.\d+|-?\d+/g;
 
-  // 🚀 劇本 A：如果是複雜的多重線段 MULTILINESTRING
   if (text.startsWith('MULTILINESTRING')) {
-    // 利用括號把每一條獨立的線段切開
     const lineStrings = text.split(/\),\s*\(/);
     const multiCoords = [];
 
@@ -26,7 +24,6 @@ const parseWKTToLatLng = (wktStr) => {
       for (let i = 0; i < matches.length; i += 2) {
         const val1 = parseFloat(matches[i]);
         const val2 = parseFloat(matches[i + 1]);
-        // 智能盲測對調 [Lat, Lng]
         if (val2 >= 20 && val2 <= 26 && val1 >= 119 && val1 <= 123) {
           singleLineCoords.push([val2, val1]);
         } else if (val1 >= 20 && val1 <= 26 && val2 >= 119 && val2 <= 123) {
@@ -37,7 +34,7 @@ const parseWKTToLatLng = (wktStr) => {
         multiCoords.push(singleLineCoords);
       }
     });
-    return multiCoords; // 吐出三維/二維陣列，Leaflet 畫 MultiPolyline 專用
+    return multiCoords;
   }
 
   // 🚀 劇本 B：一般的 LINESTRING (維持你原本的優秀邏輯)
@@ -62,9 +59,9 @@ const getAvailabilityColor = (avaCar) => {
   const count = parseInt(avaCar, 10);
   if (isNaN(count)) return '#BDC3C7'; 
 
-  if (count > 3) return '#6B9E78';           // 🟢 綠色
-  if (count >= 1 && count <= 3) return '#E67E22'; // 🟠 橘色
-  if (count === 0) return '#C96B5C';          // 🔴 紅色
+  if (count > 3) return '#6B9E78';
+  if (count >= 1 && count <= 3) return '#E67E22';
+  if (count === 0) return '#C96B5C';
   return '#BDC3C7';
 };
 
@@ -95,7 +92,6 @@ function App() {
     const pad = (n) => String(n).padStart(2, '0');
     return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:00`;
   });
-  // 🎯 智慧定時器：維持「現在時間」的 30 秒自動同步
   useEffect(() => {
     if (timeMode !== 'now') return;
 
@@ -163,13 +159,9 @@ function App() {
               }
 
               // 3. 帶著新中心點，去敲你們昨天修好的 Django 後端 API
-              const apiURL = `https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/?min_lat=${newLat-0.01}&max_lat=${newLat+0.01}&min_lng=${newLng-0.01}&max_lng=${newLng+0.01}&user_lat=${newLat}&user_lng=${newLng}`;
+              const apiURL = `/api/parking_bounds/?min_lat=${newLat-0.01}&max_lat=${newLat+0.01}&min_lng=${newLng-0.01}&max_lng=${newLng+0.01}&user_lat=${newLat}&user_lng=${newLng}`;
               
-              const backendRes = await await axios.get(apiURL);
-              if (backendRes.data){
-                const actualSearchData = backendRes.data.data ? backendRes.data.data : backendRes.data;
-                setPArkingItems(actualSearchData);
-              }
+              const backendRes = await fetch(apiURL);
               const backendData = await backendRes.json();
               
               // 4. 更新地圖上的停車格
@@ -196,7 +188,7 @@ function App() {
         if (!mapInstance) return;
         
         try {
-          if (!isRadiusMode && mapInstance.getZoom() < 16) {
+          if (!isRadiusMode && mapInstance.getZoom() < 17) {
             console.log("🛑 [效能防禦] 級距過小，直接清空陣列，拒絕請求後端，保護記憶體。");
             setParkingItems([]); // 一秒清空，DOM 節點瞬間蒸發
             return; // 直接攔截，不發送 Axios 請求！
@@ -217,10 +209,9 @@ function App() {
 
           console.log("📡 [緩衝盾牌生效] 視域完全靜止，發送單一請求...", params);
 
-          axios.get('https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/', { params })
+          axios.get('/api/parking_bounds/', { params })
             .then((res) => {
               if (res.data) {
-                const actualData = res.data.data ? res.data.data : res.data;
                 console.log("✅ 成功獲取後端異質資料筆數:", res.data.length);
                 setParkingItems(res.data);
                 const backendTime = res.data[0].update_time || res.data[0]['update-time'];
@@ -258,7 +249,7 @@ function App() {
           setIsRadiusMode(true);
           
           if (mapInstance) {
-            mapInstance.flyTo([lat, lng], 16);
+            mapInstance.flyTo([lat, lng], 17);
           }
         },
         (err) => {
@@ -270,7 +261,7 @@ function App() {
           setIsRadiusMode(true);
           
           if (mapInstance) {
-            mapInstance.flyTo([lat, lng], 16);
+            mapInstance.flyTo([lat, lng], 1);
           }
         }
       );
@@ -279,7 +270,7 @@ function App() {
       const lng = 121.5170;
       setUserLocation({ lat, lng });
       setIsRadiusMode(true);
-      if (mapInstance) mapInstance.flyTo([lat, lng], 16);
+      if (mapInstance) mapInstance.flyTo([lat, lng], 17);
     }
   };
 
@@ -291,13 +282,12 @@ function App() {
 
     // 🚀 讓地圖優雅地飛回大台北中心點，並把比例尺縮小到 14，展現全圖氣勢
     if (mapInstance) {
-      mapInstance.flyTo([25.055, 121.523], 14);
+      mapInstance.flyTo([25.055, 121.523], 16);
     }
   };
 
   return (
-    <div className="app-container relative w-full h-[100vh] flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden', touchAction: 'none' }}>      
-      <div 
+    <div className="app-container relative w-full h-[100vh] flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden', touchAction: 'none' }}>      <div 
         className="absolute left-1/2 -translate-x-1/2 z-[1000] flex flex-col items-center w-auto max-w-[95vw]"
         style={{ 
           top: '15px',
@@ -307,7 +297,7 @@ function App() {
       >
         {/* 🔍 高質感黑白膠囊搜尋框體 */}
         <div 
-          className="flex flex-row items-center"
+          className="flex flex-row items-center overflow-hidden"
           style={{
             position: 'relative',
             backgroundColor: 'rgba(255,255,255,0.9)', 
@@ -317,7 +307,7 @@ function App() {
             boxShadow: '0 4px 12px rgba(15,23,42,0.05)',
             padding: '0px 16px',
             width: '100%',
-            minwidth: '680px',
+            minWidth: '680px',
             height: '48px',
             marginBottom: '10px'
           }}
@@ -509,15 +499,22 @@ function App() {
                 }}
                 style={{
                   position: 'absolute',
-                  width: '1px',
-                  height: '1px',
-                  padding: '0',
-                  margin: '-1px',
-                  overflow: 'hidden',
-                  clip: 'rect(0, 0, 0, 0)',
-                  border: '0',
-                  backgroundColor: 'transparent',
-                  pointerEvents: 'none',
+                  top: 0,
+                  left: 0,
+                  margin: 0,
+                  padding: 0,
+                  border: 'none',
+                  boxSizing: 'border-box',
+                  background: 'transparent',
+                  
+                  // 🚀 關鍵雙軌制：
+                  // 如果是手機版（螢幕寬度小於 640px），讓 input 變滿版實體，直接去吃手指的點擊！
+                  // 如果是電腦版，維持原本的隱形狀態
+                  width: window.innerWidth < 640 ? '100%' : '1px',
+                  height: window.innerWidth < 640 ? '100%' : '1px',
+                  opacity: window.innerWidth < 640 ? 0.01 : 0, // 0.01 騙過 Safari，肉眼完全看不見
+                  zIndex: window.innerWidth < 640 ? 10 : -1,  // 手機版蓋在文字上方，電腦版退到後方
+                  pointerEvents: window.innerWidth < 640 ? 'auto' : 'none', // 手機版允許點擊
                 }}
               />
 

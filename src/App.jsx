@@ -159,7 +159,7 @@ function App() {
               }
 
               // 3. 帶著新中心點，去敲你們昨天修好的 Django 後端 API
-              const apiURL = `/api/parking_bounds/?min_lat=${newLat-0.01}&max_lat=${newLat+0.01}&min_lng=${newLng-0.01}&max_lng=${newLng+0.01}&user_lat=${newLat}&user_lng=${newLng}`;
+              const apiURL = `https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net//api/parking_bounds/?min_lat=${newLat-0.01}&max_lat=${newLat+0.01}&min_lng=${newLng-0.01}&max_lng=${newLng+0.01}&user_lat=${newLat}&user_lng=${newLng}`;
               
               const backendRes = await fetch(apiURL);
               const backendData = await backendRes.json();
@@ -209,7 +209,7 @@ function App() {
 
           console.log("📡 [緩衝盾牌生效] 視域完全靜止，發送單一請求...", params);
 
-          axios.get('/api/parking_bounds/', { params })
+          axios.get('https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net//api/parking_bounds/', { params })
             .then((res) => {
               if (res.data) {
                 console.log("✅ 成功獲取後端異質資料筆數:", res.data.length);
@@ -344,10 +344,11 @@ function App() {
           {/* 2. 地標路名打字輸入框 */}
           <input 
             type="text"
-            placeholder="輸入路名、地標 (如: 台北101)"
+            placeholder="搜尋路名、地標"
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
-            className="text-xs bg-transparent outline-none px-2 flex-1 text-gray-800 placeholder:text-[#9ca3af]"
+            /* 🚀 用 w-full 和 min-w-0，配合 flex-1，讓它在手機上自動縮小、在電腦上自動拉長，放大鏡絕對不會被擠飛！ */
+            className="text-xs sm:text-sm bg-transparent outline-none px-2 flex-1 w-full min-w-0 text-gray-800 placeholder:text-[#9ca3af]"
             onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(selectedDistrict, searchKeyword); }}
             style={{
               color: '#1F2937',
@@ -355,8 +356,8 @@ function App() {
               border: '0px',
               borderRight: '1px solid #E5E7EB',
               fontWeight: '400',
-              marginLeft: '12px',
-              paddingRight: '110px',
+              marginLeft: '8px',
+              paddingRight: '45px', /* 縮小右邊距，留位置給更新時間 */
             }}
           />
           {/* 🕒 【全新植入】搜尋框內建右下角更新時間 */}
@@ -423,14 +424,13 @@ function App() {
           className="space-time-twin-controls w-full flex flex-row justify-center"
           style={{
             display: 'flex',
-            flexDirection: 'row',      // 🚀 核心關鍵：命令子元素由上而下改成「由左至右」橫向排列！
-            alignItems: 'flex-start',  // 讓兩個方塊的頂部對齊
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: '12px',               // 🎯 精確控制：左邊時間方塊與右邊範圍滑塊之間的左右間距
+            flexDirection: 'row',     /* 🚀 電腦跟手機一律維持橫向並排！ */
+            alignItems: 'center',
+            gap: '8px',               /* 縮小間距，讓手機塞得下 */
             width: '100%',
-            maxWidth: '680px',             // 寬度交給裡面的兩個 260px 自動撐開
-            boxSizing: 'border-box'
+            maxWidth: '720px',        /* 完美對齊上方搜尋框 */
+            boxSizing: 'border-box',
+            padding: '0 4px'
           }}
         >
           
@@ -652,22 +652,23 @@ function App() {
 
         </div>
       </div>
-      <div className="absolute bottom-10 right-5 z-[1000] flex flex-col gap-3">
+      {/* 🚀 核心手術：利用 Tailwind 斷點，讓按鈕在手機和電腦自動切換左右邊！ */}
+      <div className="absolute bottom-24 left-4 sm:bottom-10 sm:left-auto sm:right-5 z-[1000] flex flex-col gap-0 shadow-md rounded-xl overflow-hidden">
         
         {/* ➕ 放大按鈕 */}
         <button
-          onClick={() => map.zoomIn()} // 🚀 呼叫 Leaflet 的內建放大功能
+          onClick={() => map.zoomIn()} 
           className="font-bold text-slate-800 border-slate-200/80 cursor-pointer transition-all active:scale-90 flex items-center justify-center text-lg"
           style={{
-            width: '40px !important',
-            height: '40px !important',
+            width: '40px',
+            height: '40px',
             minHeight: '40px',
             minWidth: '40px',
             backgroundColor: 'rgba(255,255,255,0.86)',
             color: '#4B5563',
             border: '0px solid #4B5563',
             boxShadow: '0 4px 12px rgba(15, 23, 42, 0.06)',
-            borderRadius: '14px 14px 0 0', // 🎯 上圓角設計，與下方縮小按鈕形成視覺連結
+            borderRadius: '14px 14px 0 0', 
           }}
         >
           ＋
@@ -675,11 +676,11 @@ function App() {
 
         {/* ➖ 縮小按鈕 */}
         <button
-          onClick={() => map.zoomOut()} // 🚀 呼叫 Leaflet 的內建縮小功能
+          onClick={() => map.zoomOut()} 
           className="text-slate-800 border-slate-200/80 cursor-pointer transition-all active:scale-90 flex items-center justify-center text-lg"
           style={{
-            width: '40px !important',
-            height: '40px !important',
+            width: '40px',
+            height: '40px',
             minWidth: '40px',
             minHeight: '40px',
             backgroundColor: 'rgba(255,255,255,0.86)',

@@ -195,22 +195,31 @@ function App() {
             return; // 直接攔截，不發送 Axios 請求！
           }
           const bounds = mapInstance.getBounds();
-          const params = {
-            min_lat: bounds.getSouth(),
-            max_lat: bounds.getNorth(),
-            min_lng: bounds.getWest(),
-            max_lng: bounds.getEast(),
-            target_time: targetTime,
-          };
+          let params = {};
 
           if (isRadiusMode && userLocation) {
-            params.user_lat = userLocation.lat;
-            params.user_lng = userLocation.lng;
+            params = {
+              min_lat: userLocation.lat - 0.0045,
+              max_lat: userLocation.lat + 0.0045,
+              min_lng: userLocation.lng - 0.0050,
+              max_lng: userLocation.lng + 0.0050,
+              user_lat: userLocation.lat,
+              user_lng: userLocation.lng,
+              target_time: targetTime,
+            };
+          } else {
+            params = {
+              min_lat: bounds.getSouth(),
+              max_lat: bounds.getNorth(),
+              min_lng: bounds.getWest(),
+              max_lng: bounds.getEast(),
+              target_time: targetTime,
+            };
           }
 
           console.log("📡 [緩衝盾牌生效] 視域完全靜止，發送單一請求...", params);
 
-          axios.get('https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/', { params })
+          axios.get('/api/parking_bounds/', { params })
             .then((res) => {
               if (res.data) {
                 console.log("✅ 成功獲取後端異質資料筆數:", res.data.length);
@@ -252,6 +261,8 @@ const handleSearchNearby = (mapInstance) => {
           if (mapInstance) {
             setTimeout(() => {
               mapInstance.flyTo([lat, lng], 16);
+              const url = `https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/?min_lat=${lat-0.0045}&max_lat=${lat+0.0045}&min_lng=${lng-0.0050}&max_lng=${lng+0.0050}&user_lat=${lat}&user_lng=${lng}&target_time=${targetTime}`;
+              axios.get(url).then(res => setParkingItems(res.data)).catch(err => console.error(err));
             }, 150);
           }
         },
@@ -266,6 +277,8 @@ const handleSearchNearby = (mapInstance) => {
           if (mapInstance) {
             setTimeout(() => {
               mapInstance.flyTo([lat, lng], 16);
+              const url = `https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/?min_lat=${lat-0.0045}&max_lat=${lat+0.0045}&min_lng=${lng-0.0050}&max_lng=${lng+0.0050}&user_lat=${lat}&user_lng=${lng}&target_time=${targetTime}`;
+              axios.get(url).then(res => setParkingItems(res.data)).catch(err => console.error(err));
             }, 150);
           }
         }
@@ -275,8 +288,12 @@ const handleSearchNearby = (mapInstance) => {
       const lng = 121.5170;
       setUserLocation({ lat, lng });
       setIsRadiusMode(true);
-      if (mapInstance)
-        mapInstance.flyTo([lat, lng], 17);
+      if (mapInstance){
+        mapInstance.flyTo([lat, lng], 16);
+        const url = `https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/?min_lat=${lat-0.0045}&max_lat=${lat+0.0045}&min_lng=${lng-0.0050}&max_lng=${lng+0.0050}&user_lat=${lat}&user_lng=${lng}&target_time=${targetTime}`;
+        axios.get(url).then(res => setParkingItems(res.data)).catch(err => console.error(err));
+      }
+      
     }
   };
 

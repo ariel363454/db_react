@@ -219,7 +219,7 @@ function App() {
 
           console.log("📡 [緩衝盾牌生效] 視域完全靜止，發送單一請求...", params);
 
-          axios.get('/api/parking_bounds/', { params })
+          axios.get('https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/', { params })
             .then((res) => {
               if (res.data) {
                 console.log("✅ 成功獲取後端異質資料筆數:", res.data.length);

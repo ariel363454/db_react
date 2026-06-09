@@ -37,6 +37,7 @@ const parseWKTToLatLng = (wktStr) => {
     return multiCoords;
   }
 
+  // 🚀 劇本 B：一般的 LINESTRING (維持你原本的優秀邏輯)
   const matches = text.match(numberPattern);
   if (!matches || matches.length < 2) return [];
   
@@ -111,6 +112,7 @@ function App() {
     return () => clearInterval(timer); 
   }, [timeMode, map]);
 
+  // 🎯 時空連動監聽：自訂時間選完的那一秒，立刻命令地圖刷費率
   useEffect(() => {
     if (map) {
       map.fire('dragend');
@@ -148,14 +150,17 @@ function App() {
               
               console.log(`成功反查中心點：緯度 ${newLat}, 經度 ${newLng}`);
 
+              // 🚀 同步設定中心點，讓地圖上的 500m 藍色虛線圈圈自動畫在 101 周圍
               setUserLocation({ lat: newLat, lng: newLng });
               setIsRadiusMode(true);
 
+              // 2. 叫 Leaflet 地圖直接飛過去！
               if (map) {
                   map.flyTo([newLat, newLng], 16);
               }
 
-              const apiURL = `/api/parking_bounds/?min_lat=${newLat-0.01}&max_lat=${newLat+0.01}&min_lng=${newLng-0.01}&max_lng=${newLng+0.01}&user_lat=${newLat}&user_lng=${newLng}`;
+              // 3. 帶著新中心點，去敲你們昨天修好的 Django 後端 API
+              const apiURL = `https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/?min_lat=${newLat-0.01}&max_lat=${newLat+0.01}&min_lng=${newLng-0.01}&max_lng=${newLng+0.01}&user_lat=${newLat}&user_lng=${newLng}`;
               
               const backendRes = await fetch(apiURL);
               const backendData = await backendRes.json();
@@ -214,7 +219,7 @@ function App() {
 
           console.log("📡 [緩衝盾牌生效] 視域完全靜止，發送單一請求...", params);
 
-          axios.get('/api/parking_bounds/', { params })
+          axios.get('https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/', { params })
             .then((res) => {
               if (res.data) {
                 console.log("✅ 成功獲取後端異質資料筆數:", res.data.length);
@@ -242,58 +247,55 @@ function App() {
   };
 
 const handleSearchNearby = (mapInstance) => {
-  const DEFAULT_LAT = 25.0478;
-  const DEFAULT_LNG = 121.5170;
-
-  const executeQuery = (lat, lng) => {
-    setUserLocation({ lat, lng });
-    setIsRadiusMode(true);
-
-    if (mapInstance) {
-      setTimeout(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = 25.0478;
+          const lng = 121.5170;
+          
+          console.log("🎯 [Demo Mock 模式啟用] 已模擬使用者位於台北車站");
+          
+          setUserLocation({ lat, lng });
+          setIsRadiusMode(true);
+          
+          if (mapInstance) {
+            setTimeout(() => {
+              mapInstance.flyTo([lat, lng], 16);
+              const url = `https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/?min_lat=${lat-0.0045}&max_lat=${lat+0.0045}&min_lng=${lng-0.0050}&max_lng=${lng+0.0050}&user_lat=${lat}&user_lng=${lng}&target_time=${targetTime}`;
+              axios.get(url).then(res => setParkingItems(res.data)).catch(err => console.error(err));
+            }, 150);
+          }
+        },
+        (err) => {
+          console.warn("⚠️ 攔截到 GPS 獲取失敗，啟動備用 Demo 機制");
+          const lat = 25.0478;
+          const lng = 121.5170;
+          
+          setUserLocation({ lat, lng });
+          setIsRadiusMode(true);
+          
+          if (mapInstance) {
+            setTimeout(() => {
+              mapInstance.flyTo([lat, lng], 16);
+              const url = `https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/?min_lat=${lat-0.0045}&max_lat=${lat+0.0045}&min_lng=${lng-0.0050}&max_lng=${lng+0.0050}&user_lat=${lat}&user_lng=${lng}&target_time=${targetTime}`;
+              axios.get(url).then(res => setParkingItems(res.data)).catch(err => console.error(err));
+            }, 150);
+          }
+        }
+      );
+    } else {
+      const lat = 25.0478;
+      const lng = 121.5170;
+      setUserLocation({ lat, lng });
+      setIsRadiusMode(true);
+      if (mapInstance){
         mapInstance.flyTo([lat, lng], 16);
-        const min_lat = lat - 0.0045;
-        const max_lat = lat + 0.0045;
-        const min_lng = lng - 0.0050;
-        const max_lng = lng + 0.0050;
-
-        const url = `/api/parking_bounds/?min_lat=${min_lat}&max_lat=${max_lat}&min_lng=${min_lng}&max_lng=${max_lng}&user_lat=${lat}&user_lng=${lng}&target_time=${targetTime}`;
-        
-        axios.get(url)
-          .then(res => setParkingItems(res.data))
-          .catch(err => console.error("❌ 附近搜尋 API 失敗:", err));
-      }, 150);
+        const url = `https://db-tp-back-api-bwhwd8dgfudjbgek.eastasia-01.azurewebsites.net/api/parking_bounds/?min_lat=${lat-0.0045}&max_lat=${lat+0.0045}&min_lng=${lng-0.0050}&max_lng=${lng+0.0050}&user_lat=${lat}&user_lng=${lng}&target_time=${targetTime}`;
+        axios.get(url).then(res => setParkingItems(res.data)).catch(err => console.error(err));
+      }
+      
     }
   };
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const userLat = pos.coords.coords ? pos.coords.latitude : pos.coords.latitude; 
-        const userLng = pos.coords.longitude;
-
-        const isInTaipei = (userLat >= 25.00 && userLat <= 25.15) && 
-                           (userLng >= 121.45 && userLng <= 121.65);
-
-        if (isInTaipei) {
-          console.log(`🎯 [GPS 定位成功] 使用者位於台北市範圍內 (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`);
-          executeQuery(userLat, userLng);
-        } else {
-          console.log(`⚠️ [地理圍欄攔截] 偵測到使用者人不在台北市內，物理降級回歸台北車站！`);
-          executeQuery(DEFAULT_LAT, DEFAULT_LNG);
-        }
-      },
-      (err) => {
-        console.warn("⚠️ [GPS 獲取失敗 / 拒絕授權] 啟動防禦機制，預設降級為台北車站");
-        executeQuery(DEFAULT_LAT, DEFAULT_LNG);
-      },
-      { enableHighAccuracy: true, timeout: 5000 }
-    );
-  } else {
-    console.warn("❌ 瀏覽器不支援不支援 Geolocation，預設降級為台北車站");
-    executeQuery(DEFAULT_LAT, DEFAULT_LNG);
-  }
-};
 
   const handleResetToGlobal = (mapInstance) => {
     setIsRadiusMode(false);
@@ -311,7 +313,7 @@ const handleSearchNearby = (mapInstance) => {
           left: '48%',
         }} 
       >
-        {/* 黑白膠囊搜尋框體 */}
+        {/* 🔍 高質感黑白膠囊搜尋框體 */}
         <div 
           className="flex flex-row items-center overflow-hidden"
           style={{
@@ -374,7 +376,7 @@ const handleSearchNearby = (mapInstance) => {
               paddingRight: '45px', /* 縮小右邊距，留位置給更新時間 */
             }}
           />
-          {/* 搜尋框內建右下角更新時間 */}
+          {/* 🕒 【全新植入】搜尋框內建右下角更新時間 */}
           <div 
             style={{
               position: 'absolute',
@@ -407,7 +409,7 @@ const handleSearchNearby = (mapInstance) => {
               boxShadow: '0 2px 6px rgba(79, 70, 229, 0.2)',
             }}
           >
-            {/* 放大鏡 Outline Icon 本體  */}
+            {/* 🔍 放大鏡 Outline Icon 本體 (標準線性極簡風) */}
             <svg 
               className="w-5 h-5" // Tailwind 控制預設大小
               viewBox="0 0 24 24" 
@@ -448,7 +450,7 @@ const handleSearchNearby = (mapInstance) => {
           }}
         >
           
-          {/* ❶ 左側 */}
+          {/* ❶ 左側：【260px 極簡文字切換完全體】 */}
           <div
             className="time-filter-section"
             style={{
@@ -467,7 +469,7 @@ const handleSearchNearby = (mapInstance) => {
               boxSizing: 'border-box',
             }}
           >
-            {/* 📅 純文字點擊長條框 */}
+            {/* 📅 一體化純文字智慧點擊長條框 */}
             <div
               className="interactive-text-toggle-bar"
               onClick={() => {
@@ -478,6 +480,7 @@ const handleSearchNearby = (mapInstance) => {
                   const formatted = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:00`;
                   setTargetTime(formatted);
                 } else {
+                  // 🚀 如果是現在時間模式，戳下去強制命令底層 input 喚醒原生轉盤！
                   const inputEl = document.getElementById('ghost-time-input');
                   if (inputEl && inputEl.showPicker) {
                     setTimeMode('custom'); // 變更狀態解鎖時間字串顯示
@@ -520,6 +523,7 @@ const handleSearchNearby = (mapInstance) => {
                   boxSizing: 'border-box',
                   background: 'transparent',
                   
+                  // 🚀 關鍵雙軌制：
                   // 如果是手機版（螢幕寬度小於 640px），讓 input 變滿版實體，直接去吃手指的點擊！
                   // 如果是電腦版，維持原本的隱形狀態
                   width: window.innerWidth < 640 ? '100%' : '1px',
@@ -566,7 +570,7 @@ const handleSearchNearby = (mapInstance) => {
             
           </div>
 
-          {/* ❷ 右側*/}
+          {/* ❷ 右側：【260px 搜尋範圍智慧膠囊滑塊】 */}
           <div 
             className="search-range-section"
             style={{

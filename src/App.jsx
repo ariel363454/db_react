@@ -81,6 +81,7 @@ function App() {
   const [parkingItems, setParkingItems] = useState([]);
   const [isRadiusMode, setIsRadiusMode] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
+  const [initialGPSLocation, setInitialGPSLocation] = useState(null);
   const [map, setMap] = useState(null);
   const [activeFeeItem, setActiveFeeItem] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState('');
@@ -677,6 +678,53 @@ const handleSearchNearby = (mapInstance) => {
           left: '20px',
         }}
       >
+        {/* 🎯 【全新增補】回到我的位置（GPS 傳送鈕） */}
+        {isRadiusMode && initialGPSLocation && (
+          <button
+            onClick={() => {
+              console.log("⚡ [雷達校准] 物理傳送回最初實體 GPS 位置:", initialGPSLocation);
+              
+              setUserLocation(initialGPSLocation);
+              
+              if (map) {
+                map.flyTo([initialGPSLocation.lat, initialGPSLocation.lng], 16);
+                
+                const min_lat = initialGPSLocation.lat - 0.0045;
+                const max_lat = initialGPSLocation.lat + 0.0045;
+                const min_lng = initialGPSLocation.lng - 0.0050;
+                const max_lng = initialGPSLocation.lng + 0.0050;
+                const url = `/api/parking_bounds/?min_lat=${min_lat}&max_lat=${max_lat}&min_lng=${min_lng}&max_lng=${max_lng}&user_lat=${initialGPSLocation.lat}&user_lng=${initialGPSLocation.lng}&target_time=${targetTime}`;
+                
+                axios.get(url)
+                  .then(res => setParkingItems(res.data))
+                  .catch(err => console.error("❌ 回到定位 API 失敗:", err));
+              }
+            }}
+            className="cursor-pointer transition-all active:scale-90 flex items-center justify-center border-b border-slate-100"
+            style={{
+              width: '40px',
+              height: '40px',
+              backgroundColor: 'rgba(255,255,255,0.86)', // 換上高階科技藍，讓使用者一眼看出這是功能功能鈕
+              color: '#4F46E5',
+              border: 'none',
+              borderRadius: '14px',
+              marginBottom: '8px',       // 與底下的放大縮小鈕保持優雅間距
+              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.06)',
+            }}
+            title="回到我的實體位置"
+          >
+            {/* 📡 經典雷達中心瞄準點線性 Icon */}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="3" fill="currentColor"/>
+              <line x1="12" y1="1" x2="12" y2="4"/>
+              <line x1="12" y1="20" x2="12" y2="23"/>
+              <line x1="1" y1="12" x2="4" y2="12"/>
+              <line x1="20" y1="12" x2="23" y2="12"/>
+            </svg>
+          </button>
+        )}
+        
         {/* ➕ 放大按鈕 */}
         <button
           onClick={() => map.zoomIn()} 

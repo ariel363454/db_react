@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, Popup, Circle, Tooltip, useMapEvents, FeatureGroup } from 'react-leaflet';
 import axios from 'axios';
 import 'leaflet/dist/leaflet.css';
@@ -81,6 +81,24 @@ function App() {
   const [isRadiusMode, setIsRadiusMode] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [initialGPSLocation, setInitialGPSLocation] = useState(null);
+  const [notification, setNotification] = useState(null);
+  const userLocationRef = useRef(userLocation);
+  const notificationTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    userLocationRef.current = userLocation;
+  }, [userLocation]);
+
+  const showNotification = (message, type = 'warning') => {
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current);
+    }
+    setNotification({ message, type });
+    notificationTimeoutRef.current = setTimeout(() => {
+      setNotification(null);
+      notificationTimeoutRef.current = null;
+    }, 3000);
+  };
   const [map, setMap] = useState(null);
   const [activeFeeItem, setActiveFeeItem] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState('');
@@ -180,6 +198,25 @@ function App() {
       click: (e) => {
         const { lat, lng } = e.latlng;
         console.log(`🎯 [地圖點擊發動] 坐標鎖定: Lat: ${lat}, Lng: ${lng}`);
+
+        // 🛑 台北市範圍守衛 (Latitude 25.00 ~ 25.15, Longitude 121.45 ~ 121.65)
+        const isInTaipei = (lat >= 25.00 && lat <= 25.15) && 
+                           (lng >= 121.45 && lng <= 121.65);
+
+        if (!isInTaipei) {
+          showNotification("⚠️ 點擊位置超出台北市範圍！已自動拉回");
+          
+          // 拉回上一個點擊地點/有效地點
+          const prevLoc = userLocationRef.current;
+          if (prevLoc) {
+            mapInstance.flyTo([prevLoc.lat, prevLoc.lng], mapInstance.getZoom());
+          } else {
+            // 如果沒有上一個點，拉回預設台北市中心/定位點
+            const fallbackLoc = initialGPSLocation || { lat: 25.0478, lng: 121.5170 };
+            mapInstance.flyTo([fallbackLoc.lat, fallbackLoc.lng], mapInstance.getZoom());
+          }
+          return;
+        }
 
         // 1. 強制設定中心點與解鎖 500m 科技防禦罩
         setUserLocation({ lat, lng });
@@ -335,8 +372,37 @@ const handleSearchNearby = (mapInstance) => {
   };
 
   return (
-      <div className="app-container relative w-full h-[100vh] flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden', touchAction: 'none' }}>      <div 
-        className="absolute left-1/2 -translate-x-1/2 z-[1000] flex flex-col items-center w-auto max-w-[95vw]"
+      <div className="app-container relative w-full h-[100vh] flex flex-col" style={{ margin: 0, padding: 0, overflow: 'hidden', touchAction: 'none' }}>
+        
+        {/* 🔔 台北市範圍外防護警示通知 */}
+        {notification && (
+          <div 
+            className="fixed z-[9999] px-6 py-4 rounded-2xl flex items-center gap-3 shadow-2xl transition-all duration-300 transform"
+            style={{
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: 'rgba(254, 242, 242, 0.95)', // 淺粉紅背景
+              border: '1px solid rgba(239, 68, 68, 0.4)',  // 細緻紅邊框
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              boxShadow: '0 20px 25px -5px rgba(220, 38, 38, 0.2), 0 10px 10px -5px rgba(220, 38, 38, 0.15)',
+              color: '#B91C1C',
+              fontWeight: '600',
+              fontSize: '14px',
+              pointerEvents: 'none',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <svg width="16" height="16" className="text-red-600 shrink-0 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" style={{ width: '16px', height: '16px' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>{notification.message}</span>
+          </div>
+        )}
+
+        <div 
+          className="absolute left-1/2 -translate-x-1/2 z-[1000] flex flex-col items-center w-auto max-w-[95vw]"
         style={{ 
           top: '15px',
           rowGap: '12px',
@@ -813,34 +879,20 @@ const handleSearchNearby = (mapInstance) => {
         <MapEvents />
 
         {isRadiusMode && userLocation && (
-          <React.Fragment>
-            <Circle
-              center={[userLocation.lat, userLocation.lng]}
-              radius={5} // 實體 8 公尺小圓點，當作中心指針
-              pathOptions={{
-                fillColor: '#E07A5F', // Tailwind Red 500
-                fillOpacity: 1,
-                color: '#FFFFFF',
-                weight: 2,
-              }}
-              renderer={L.svg()}
-            />
-
-            <Circle
-              center={[userLocation.lat, userLocation.lng]}
-              radius={500} // 📐 嚴格對齊後端 ST_Distance_Sphere 的 500 公尺！
-              pathOptions={{
-                fillColor: '#6366F1',   // Tailwind Blue 500
-                fillOpacity: 0.05,     // 🌌 極致輕薄的半透明科技底色，絕對不遮擋馬路和圖標
-                color: '#6366F1',
-                opacity: '0.5',
-                weight: 1,
-                dashArray: '18, 12',     // ⚡ 讓圓形外框變虛線圈，視覺質感直接飛天！
-              }}
-              interactive={false}
-              renderer={L.svg()}
-            />
-          </React.Fragment>
+          <Circle
+            center={[userLocation.lat, userLocation.lng]}
+            radius={500} // 📐 嚴格對齊後端 ST_Distance_Sphere 的 500 公尺！
+            pathOptions={{
+              fillColor: '#6366F1',   // Tailwind Blue 500
+              fillOpacity: 0.05,     // 🌌 極致輕薄的半透明科技底色，絕對不遮擋馬路和圖標
+              color: '#6366F1',
+              opacity: '0.5',
+              weight: 1,
+              dashArray: '18, 12',     // ⚡ 讓圓形外框變虛線圈，視覺質感直接飛天！
+            }}
+            interactive={false}
+            renderer={L.svg()}
+          />
         )}
         {/* 🚀 智慧伸縮動態圖例膠囊完全體（徹底拔除 window.innerWidth 危害） */}
         <div 
